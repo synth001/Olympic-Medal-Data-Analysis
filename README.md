@@ -31,6 +31,42 @@ This project provides a single R script, `Olympic_Medal_Analysis.R`, that:
 
 All plots render in sequence when you source the script; regression summaries and model diagnostics print to the console.
 
+<p align="center">
+  <img src="img/1.png" width="100%" />
+</p>
+
+<p align="center">
+  <img src="img/2.png" width="100%" />
+</p>
+
+<p align="center">
+  <img src="img/3.png" width="100%" />
+</p>
+
+<p align="center">
+  <img src="img/4.png" width="100%" />
+</p>
+
+<p align="center">
+  <img src="img/5.png" width="100%" />
+</p>
+
+<p align="center">
+  <img src="img/6.png" width="100%" />
+</p>
+
+<p align="center">
+  <img src="img/7.png" width="100%" />
+</p>
+
+<p align="center">
+  <img src="img/8.png" width="100%" />
+</p>
+
+<p align="center">
+  <img src="img/9.png" width="100%" />
+</p>
+
 ---
 
 ## Features & Outputs
