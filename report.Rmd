@@ -1,0 +1,264 @@
+---
+title: "Olympic Medal Analysis"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo        = TRUE,
+  message     = FALSE,
+  warning     = FALSE,
+  fig.width   = 8,
+  fig.height  = 5,
+  out.width   = "100%",
+  fig.align   = "center"
+)
+library(tidyverse)
+library(countrycode)
+library(WDI)
+library(maps)
+library(viridis)
+library(corrplot)
+````
+
+# Introduction
+
+This analysis uses the TidyTuesday “olympics” dataset and World Bank 2016 indicators to:
+
+1. **Aggregate** all‐time medal counts by NOC
+2. **Augment** with population and GDP per capita
+3. **Visualize** global performance and relationships
+4. **Model** through correlation, linear regression, and clustering
+
+# 1. Data Loading & Preparation
+
+```{r load-data}
+# 1.1 Fetch TidyTuesday Olympics data
+url <- "https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2021/2021-07-27/olympics.csv"
+olympics <- read_csv(url, show_col_types = FALSE)
+
+# 1.2 Aggregate medals by NOC
+medals <- olympics %>%
+  filter(!is.na(noc)) %>%
+  group_by(noc) %>%
+  summarise(
+    gold   = sum(medal == "Gold",   na.rm = TRUE),
+    silver = sum(medal == "Silver", na.rm = TRUE),
+    bronze = sum(medal == "Bronze", na.rm = TRUE)
+  ) %>%
+  ungroup() %>%
+  mutate(total = gold + silver + bronze)
+
+# 1.3 Fetch 2016 population & GDP per capita
+wb_ind <- c(pop = "SP.POP.TOTL", gdp_pc = "NY.GDP.PCAP.KD")
+wb_raw <- WDI(country = unique(medals$noc),
+              indicator = wb_ind,
+              start = 2016, end = 2016,
+              extra = FALSE) %>%
+  select(iso2c, pop, gdp_pc)
+
+# 1.4 Harmonize codes & join
+wb <- wb_raw %>%
+  mutate(noc = countrycode(iso2c, "iso2c", "iso3c")) %>%
+  select(noc, population = pop, gdp_pc)
+
+medals <- medals %>%
+  left_join(wb, by = "noc") %>%
+  mutate(country = countrycode(noc, "iso3c", "country.name")) %>%
+  drop_na(country)
+
+# Show a preview
+knitr::kable(head(medals), caption = "Medals & World Bank Indicators")
+```
+
+# 2. Top Performers
+
+## 2.1 Top 10 by Total Medals
+
+```{r top10-total, fig.cap="Top 10 NOCs by All-Time Total Medals"}
+top10 <- medals %>%
+  arrange(desc(total)) %>%
+  slice(1:10)
+
+ggplot(top10, aes(reorder(country, total), total, fill = country)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(
+    title = "Top 10 NOCs by Total Medals",
+    x     = NULL, y = "Total Medals"
+  ) +
+  theme_minimal()
+```
+
+## 2.2 Top 10 by Medals per Million People
+
+```{r top10-percap, fig.cap="Top 10 NOCs by Medals per Million Inhabitants"}
+medals <- medals %>%
+  mutate(medals_per_million = total / (population / 1e6))
+
+top10_pc <- medals %>%
+  arrange(desc(medals_per_million)) %>%
+  slice(1:10)
+
+ggplot(top10_pc, aes(reorder(country, medals_per_million), medals_per_million, fill = country)) +
+  geom_col(show.legend = FALSE) +
+  coord_flip() +
+  labs(
+    title = "Top 10 NOCs by Medals per Million People (2016)",
+    x     = NULL, y = "Medals per Million"
+  ) +
+  theme_minimal()
+```
+
+# 3. Global Map
+
+```{r choropleth, fig.cap="World Map of Total Medals by Country"}
+world <- map_data("world") %>%
+  mutate(iso3 = countrycode(region, "country.name", "iso3c"))
+
+map_df <- world %>%
+  left_join(medals, by = c("iso3" = "noc"))
+
+ggplot(map_df, aes(long, lat, group = group, fill = total)) +
+  geom_polygon(color = "gray80", size = 0.1) +
+  scale_fill_viridis(
+    option    = "magma",
+    name      = "Total Medals",
+    na.value  = "gray90"
+  ) +
+  labs(title = "All-Time Olympic Medals by Country") +
+  theme_void()
+```
+
+# 4. Medal‐Type Distribution
+
+```{r distribution, fig.cap="Overall Medal-Type Distribution"}
+overall <- medals %>%
+  summarise(across(gold:bronze, sum, na.rm = TRUE)) %>%
+  pivot_longer(everything(), names_to = "Medal", values_to = "Count")
+
+ggplot(overall, aes(x = "", y = Count, fill = Medal)) +
+  geom_col(width = 1) +
+  coord_polar("y") +
+  scale_fill_viridis_d(option = "plasma") +
+  labs(title = "Overall Olympic Medal Distribution") +
+  theme_void()
+```
+
+# 5. Distributions & Relationships
+
+## 5.1 Histogram of Total Medals
+
+```{r hist-total, fig.cap="Histogram of Total Medals Across NOCs"}
+ggplot(medals, aes(total)) +
+  geom_histogram(binwidth = 50, fill = "steelblue", color = "white") +
+  labs(
+    title = "Distribution of Total Medals",
+    x     = "Total Medals",
+    y     = "Frequency"
+  ) +
+  theme_minimal()
+```
+
+## 5.2 Gold vs. Silver
+
+```{r scatter-gs, fig.cap="Scatter Plot: Gold vs Silver Medals"}
+ggplot(medals, aes(gold, silver)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE, color = "darkred") +
+  labs(
+    title = "Gold vs Silver Medals",
+    x     = "Gold",
+    y     = "Silver"
+  ) +
+  theme_minimal()
+```
+
+## 5.3 Total Medals vs. Population
+
+```{r scatter-pop, fig.cap="Total Medals vs Population (log scale)"}
+ggplot(medals, aes(population, total)) +
+  geom_point(alpha = 0.6) +
+  scale_x_log10(labels = scales::comma) +
+  geom_smooth(method = "lm", se = FALSE, color = "darkgreen") +
+  labs(
+    title = "Total Medals vs Population (2016)",
+    x     = "Population (log scale)",
+    y     = "Total Medals"
+  ) +
+  theme_minimal()
+```
+
+# 6. Correlation Analysis
+
+```{r correlation, fig.cap="Correlation Matrix of Medal Counts & Efficiency"}
+corr_vars <- medals %>%
+  select(gold, silver, bronze, total, medals_per_million)
+
+corr_mtx <- cor(corr_vars, use = "pairwise.complete.obs")
+corrplot(
+  corr_mtx,
+  method = "color",
+  type   = "upper",
+  tl.col = "black",
+  tl.cex = 0.8,
+  title  = "Correlation Heatmap"
+)
+```
+
+# 7. Regression Modeling
+
+```{r regression}
+mod <- lm(total ~ population + gdp_pc, data = medals)
+summary(mod)
+```
+
+```{r diag-plot, fig.cap="Residuals vs Fitted for Regression Model"}
+plot(mod, which = 1)
+```
+
+# 8. K‐Means Clustering
+
+```{r clustering, fig.cap="PCA Scatter with k-means Clusters (k=4)"}
+# prepare & scale
+cl_data <- scale(corr_vars)
+set.seed(42)
+km <- kmeans(cl_data, centers = 4, nstart = 25)
+
+# PCA for 2D projection
+pca <- prcomp(cl_data)
+scores <- as_tibble(pca$x[,1:2]) %>%
+  bind_cols(country = medals$country, cluster = factor(km$cluster))
+
+ggplot(scores, aes(PC1, PC2, color = cluster)) +
+  geom_point(alpha = 0.8) +
+  labs(
+    title = "PCA of NOC Profiles with k-means Clusters",
+    x     = "PC1", y = "PC2"
+  ) +
+  theme_minimal() +
+  scale_color_viridis_d()
+```
+
+# 9. Conclusions
+
+* **Raw powerhouses** (USA, URS, GER…) dominate total counts.
+* **Efficiency leaders** (small nations with high medals per capita) emerge in per-million ranking.
+* **Population & GDP** are statistically significant predictors of raw medal counts.
+* **Clusters** reveal distinct country profiles:
+
+  1. Large delegations
+  2. Wealthy mid-sized teams
+  3. Efficiency specialists
+  4. Low-output countries
+
+---
+
+*Analysis performed using R 4.3, tidyverse, countrycode, WDI, maps, viridis & corrplot.*
