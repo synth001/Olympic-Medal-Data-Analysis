@@ -1,0 +1,90 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\title{Olympic Medal Analysis\\\large All‐Time Medals \& Efficiency}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+This report summarizes an analysis of all‐time Olympic medals by National Olympic Committees (NOCs), enriched with 2016 population and GDP per capita data. We explore raw counts, per‐capita efficiency, geospatial distributions, and fit statistical and clustering models.
+\end{abstract}
+
+\section{Introduction}
+We fetch the TidyTuesday Olympics dataset and the World Bank 2016 indicators, then generate multiple visualizations and models to understand global performance.
+
+\section{Top 10 NOCs by Total Medals}
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{p1_top10_total.png}
+  \captionof{figure}{Bar chart of the top 10 NOCs by total medals.}
+\end{center}
+
+\section{Top 10 NOCs by Medals per Million Inhabitants}
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{p2_top10_per_million.png}
+  \captionof{figure}{Bar chart of the top 10 NOCs by medals per million inhabitants.}
+\end{center}
+
+\section{Global Choropleth}
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{p3_world_map.png}
+  \captionof{figure}{World map shaded by total medals.}
+\end{center}
+
+\section{Medal‐Type Distribution}
+\begin{center}
+  \includegraphics[width=0.6\textwidth]{p4_pie_distribution.png}
+  \captionof{figure}{Pie chart of Gold, Silver, Bronze proportions.}
+\end{center}
+
+\section{Distribution of Total Medals}
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{p5_hist_total.png}
+  \captionof{figure}{Histogram of total medals across all NOCs.}
+\end{center}
+
+\section{Correlations and Models}
+\subsection{Correlation Heatmap}
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{p6_corr_heatmap.png}
+  \captionof{figure}{Correlation among medal counts and efficiencies.}
+\end{center}
+
+\subsection{Regression Model}
+\begin{verbatim}
+<< include-console-output('regression_summary.txt') >>
+\end{verbatim}
+
+\subsection{Residuals vs Fitted}
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{p7_residuals_fitted.png}
+  \captionof{figure}{Residuals vs.\ Fitted values for the linear model.}
+\end{center}
+
+\section{Clustering of NOCs}
+\begin{center}
+  \includegraphics[width=0.8\textwidth]{p8_cluster_plot.png}
+  \captionof{figure}{PCA‐based visualization of k‐means clusters (k=4).}
+\end{center}
+
+\section{Conclusions}
+Summarize key findings, e.g.\  
+\begin{itemize}
+  \item Medal powerhouses align with population and GDP, but efficiency metrics highlight smaller outperformers.  
+  \item Regression confirms population and GDP as significant predictors of raw medal counts.  
+  \item Clustering reveals distinct profiles: large delegations, niche specialists, and highly efficient small countries.
+\end{itemize}
+
+\section{References}
+\begin{itemize}
+  \item \textbf{Olympic Data:} TidyTuesday, \url{https://github.com/rfordatascience/tidytuesday}  
+  \item \textbf{World Bank API:} \url{https://data.worldbank.org/}  
+  \item \textbf{R Packages:} tidyverse, countrycode, WDI, maps, viridis, corrplot  
+\end{itemize}
+
+\end{document}
